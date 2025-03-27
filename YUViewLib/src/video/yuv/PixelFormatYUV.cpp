@@ -124,7 +124,9 @@ PixelFormatYUV::PixelFormatYUV(const std::string &name)
 {
   if (auto predefinedFormat = PredefinedPixelFormatMapper.getValue(name))
   {
-    if (*predefinedFormat == PredefinedPixelFormat::V210)
+    if (*predefinedFormat == PredefinedPixelFormat::V210
+        || *predefinedFormat == PredefinedPixelFormat::P210
+    )
       this->predefinedPixelFormat = predefinedFormat;
   }
 
@@ -378,7 +380,10 @@ int64_t PixelFormatYUV::bytesPerFrame(const Size &frameSize) const
       auto roundedUpWidth = (((frameSize.width + 48 - 1) / 48) * 48);
       return frameSize.height * roundedUpWidth * 16 / 6;
     }
-    return -1;
+    else if (*this->predefinedPixelFormat == PredefinedPixelFormat::P210)
+    {
+      return frameSize.width * frameSize.height * 4;
+    }
   }
 
   int64_t bytes = 0;
@@ -465,6 +470,8 @@ std::string PixelFormatYUV::getName() const
   {
     if (*this->predefinedPixelFormat == PredefinedPixelFormat::V210)
       return "V210";
+    else if (*this->predefinedPixelFormat == PredefinedPixelFormat::P210)
+      return "P210";
     return "Invalid";
   }
 
@@ -505,6 +512,8 @@ unsigned PixelFormatYUV::getNrPlanes() const
   {
     if (*this->predefinedPixelFormat == PredefinedPixelFormat::V210)
       return 3;
+    else if (*this->predefinedPixelFormat == PredefinedPixelFormat::P210)
+      return 2;
     return 0;
   }
 
@@ -520,7 +529,9 @@ Subsampling PixelFormatYUV::getSubsampling() const
 {
   if (this->predefinedPixelFormat)
   {
-    if (*this->predefinedPixelFormat == PredefinedPixelFormat::V210)
+    if (*this->predefinedPixelFormat == PredefinedPixelFormat::V210
+        || *this->predefinedPixelFormat == PredefinedPixelFormat::P210
+    )
       return Subsampling::YUV_422;
     return Subsampling::UNKNOWN;
   }
@@ -571,7 +582,9 @@ unsigned PixelFormatYUV::getBitsPerSample() const
 {
   if (this->predefinedPixelFormat)
   {
-    if (*this->predefinedPixelFormat == PredefinedPixelFormat::V210)
+    if (*this->predefinedPixelFormat == PredefinedPixelFormat::V210
+        || *this->predefinedPixelFormat == PredefinedPixelFormat::P210
+    )
       return 10;
     return 0;
   }
@@ -597,6 +610,8 @@ bool PixelFormatYUV::isPlanar() const
   {
     if (*this->predefinedPixelFormat == PredefinedPixelFormat::V210)
       return false;
+    else if (*this->predefinedPixelFormat == PredefinedPixelFormat::P210)
+      return true;
     return false;
   }
 
