@@ -383,7 +383,7 @@ std::pair<bool, PixelFormatYUV> convertV210PackedToPlanar(const QByteArray &sour
 
 std::pair<bool, PixelFormatYUV> convertP210ToPlanar(const QByteArray &sourceBuffer,
                                                     QByteArray       &targetBuffer,
-                                                    const Size        curFrameSize)
+                                                    const Size       /*curFrameSize*/)
 {
   // The output format is 422 10 bit planar interleaved
   auto newFormat = PixelFormatYUV(Subsampling::YUV_422, 10, PlaneOrder::YUV, {}, {}, /*uvInterleaved=*/true);
@@ -391,7 +391,7 @@ std::pair<bool, PixelFormatYUV> convertP210ToPlanar(const QByteArray &sourceBuff
     targetBuffer.resize(sourceBuffer.size());
   auto* pSrc = (uint16_t*)sourceBuffer.data();
   auto* pDest = (uint16_t*)targetBuffer.data();
-  for (auto i = 0u; i < sourceBuffer.size() >> 1; ++i) {
+  for (auto i = 0; i < sourceBuffer.size() / 2; ++i) {
     *pDest++ = *pSrc++ >> 6;
   }
   return {true, newFormat};
@@ -449,7 +449,7 @@ yuv_t getPixelValueP210(const QByteArray &sourceBuffer,
 {
   const auto* p = (uint16_t*)sourceBuffer.data();
   const auto* pY = p + pixelPos.y() * curFrameSize.width + pixelPos.x();
-  const auto* pUV = pY + curFrameSize.width * curFrameSize.height + pixelPos.y() * curFrameSize.width + pixelPos.x() / 2;
+  const auto* pUV = p + curFrameSize.width * curFrameSize.height + pixelPos.y() * curFrameSize.width + pixelPos.x() / 2;
   yuv_t res {};
   res.Y = *pY >> 6;
   res.U = *pUV >> 6;
